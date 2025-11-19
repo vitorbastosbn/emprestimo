@@ -1,0 +1,144 @@
+@if (emprestimo) {
+<div class="container">
+  <header class="header">
+    <div class="header-top">
+      <div>
+        <h1>Acompanhamento de Empréstimo</h1>
+        <p class="user-role">{{ isAdmin ? 'Administrador' : 'Consulta' }}</p>
+      </div>
+      <button class="btn-logout" (click)="logout()">Sair</button>
+    </div>
+    <div class="resumo">
+      <div class="card" [title]="'Valor inicial do empréstimo contratado'">
+        <div class="card-header">
+          <h3>Valor Inicial</h3>
+          <span class="info-icon" title="Valor inicial do empréstimo contratado">ℹ️</span>
+        </div>
+        <p class="valor">{{ formatarMoeda(emprestimo.valorInicial) }}</p>
+      </div>
+      <div class="card" title="Taxa de juros mensal aplicada ao empréstimo">
+        <div class="card-header">
+          <h3>Taxa de Juros</h3>
+          <span class="info-icon" title="Taxa de juros mensal aplicada ao empréstimo">ℹ️</span>
+        </div>
+        <p class="valor">{{ emprestimo.taxaJurosMensal.toFixed(3) }}% a.m.</p>
+        <p class="subvalor">(120% do CDI)</p>
+      </div>
+      <div class="card" title="Rendimento total acumulado do investimento ao longo do período">
+        <div class="card-header">
+          <h3>Total Rendimento</h3>
+          <span class="info-icon" title="Rendimento total acumulado do investimento ao longo do período">ℹ️</span>
+        </div>
+        <p class="valor">{{ formatarMoeda(emprestimo.totalRendimento) }}</p>
+      </div>
+      <div class="card" title="Valor inicial mais o rendimento total acumulado">
+        <div class="card-header">
+          <h3>Montante Total</h3>
+          <span class="info-icon" title="Valor inicial mais o rendimento total acumulado">ℹ️</span>
+        </div>
+        <p class="valor">{{ formatarMoeda(emprestimo.montanteTotalRendimento) }}</p>
+      </div>
+      <div class="card" title="Quantidade total de parcelas do empréstimo">
+        <div class="card-header">
+          <h3>Número de Parcelas</h3>
+          <span class="info-icon" title="Quantidade total de parcelas do empréstimo">ℹ️</span>
+        </div>
+        <p class="valor">{{ emprestimo.numeroParcelas }}</p>
+      </div>
+      <div class="card" title="Valor fixo de cada parcela mensal">
+        <div class="card-header">
+          <h3>Parcela Fixa</h3>
+          <span class="info-icon" title="Valor fixo de cada parcela mensal">ℹ️</span>
+        </div>
+        <p class="valor">{{ formatarMoeda(emprestimo.valorParcela) }}</p>
+      </div>
+    </div>
+  </header>
+
+  <section class="totais">
+    <div class="total-card total">
+      <h3>💰 Total Pago</h3>
+      <p>{{ formatarMoeda(totalPago) }}</p>
+    </div>
+    <div class="total-card diferenca">
+      <h3>📊 Total de Diferenças</h3>
+      <p>{{ formatarMoeda(totalDiferenca) }}</p>
+    </div>
+  </section>
+
+  <section class="tabela-section">
+    <div class="tabela-header">
+      <h2>Relação Mês a Mês: Rendimento do Investimento vs. Pagamento do Empréstimo</h2>
+      @if (isAdmin) {
+        <div class="botoes-acao">
+          @if (mensagemSucesso) {
+            <div class="mensagem-sucesso">{{ mensagemSucesso }}</div>
+          }
+          <button class="btn-salvar" (click)="salvarAlteracoes()" [disabled]="isSalvando">
+            {{ isSalvando ? 'Salvando...' : 'Salvar Alterações' }}
+          </button>
+        </div>
+      }
+    </div>
+    <div class="table-container">
+      <table class="parcelas-table">
+        <thead>
+          <tr>
+            <th rowspan="2">Parc.</th>
+            <th rowspan="2">Data Venc.</th>
+            <th colspan="3" class="section-header investimento-header">📈 Investimento</th>
+            <th colspan="6" class="section-header emprestimo-header">💳 Empréstimo</th>
+          </tr>
+          <tr>
+            <th>Rend. Mês</th>
+            <th>Rend. Acum.</th>
+            <th>Montante</th>
+            <th>Parcela</th>
+            <th>Juros</th>
+            <th>Amort.</th>
+            <th>Valor Pago</th>
+            <th>Diferença</th>
+            <th>Quitação</th>
+          </tr>
+        </thead>
+        <tbody>
+          @for (parcela of emprestimo.parcelas; track parcela.numero) {
+            <tr>
+              <td class="numero">{{ parcela.numero }}</td>
+              <td>{{ formatarData(parcela.dataVencimento) }}</td>
+              <td class="rendimento-mes">{{ formatarMoeda(parcela.rendimentoMes) }}</td>
+              <td class="rendimento-acumulado">{{ formatarMoeda(parcela.rendimentoAcumulado) }}</td>
+              <td class="montante-investimento">{{ formatarMoeda(parcela.montanteInvestimento) }}</td>
+              <td class="valor">{{ formatarMoeda(parcela.valorParcela) }}</td>
+              <td class="juros">{{ formatarMoeda(parcela.juros) }}</td>
+              <td class="amortizacao">{{ formatarMoeda(parcela.amortizacao) }}</td>
+              <td class="valor-real-pago">
+                @if (isAdmin) {
+                  <input 
+                    type="text" 
+                    [value]="formatarMoeda(parcela.valorRealPago)" 
+                    (blur)="atualizarValorRealPago(parcela, $any($event.target).value)"
+                    appMascaraMoeda
+                    class="input-valor"
+                  />
+                } @else {
+                  <span class="valor-readonly">{{ formatarMoeda(parcela.valorRealPago) }}</span>
+                }
+              </td>
+              <td class="diferenca" [class.positiva]="(parcela.foiEditado && parcela.diferenca > 0)" [class.negativa]="(parcela.foiEditado && parcela.diferenca < 0)">
+                {{ formatarMoeda(parcela.foiEditado ? parcela.diferenca : 0) }}
+              </td>
+              <td class="quitacao">{{ formatarMoeda(parcela.quitacaoEmprestimo) }}</td>
+            </tr>
+          }
+        </tbody>
+      </table>
+    </div>
+  </section>
+</div>
+} @else {
+  <div class="container">
+    <p>Carregando...</p>
+  </div>
+}
+

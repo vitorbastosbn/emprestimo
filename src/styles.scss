@@ -1,1 +1,33 @@
-/* You can add global styles to this file, and also import other style files */
+/* Paleta Executiva Sóbria */
+:root {
+  --color-primary: #1e40af;      /* Azul profundo */
+  --color-secondary: #64748b;    /* Cinza azulado */
+  --color-accent: #0f766e;       /* Verde teal profundo */
+  --color-light: #f8fafc;        /* Branco gelo */
+  --color-border: #e2e8f0;       /* Cinza claro */
+  --color-text: #1e293b;         /* Texto escuro */
+  --color-text-light: #64748b;   /* Texto secundário */
+  --color-success: #059669;      /* Verde executivo */
+  --color-warning: #b45309;      /* Âmbar profundo */
+  --color-error: #dc2626;        /* Vermelho profundo */
+  --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0, 0, 0, 0.1);
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+html, body {
+  height: 100%;
+}
+
+body {
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen', 'Ubuntu', 'Cantarell', sans-serif;
+  background-color: var(--color-light);
+  color: var(--color-text);
+  line-height: 1.6;
+}
